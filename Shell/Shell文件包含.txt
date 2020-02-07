@@ -1,0 +1,39 @@
+Shell文件包含
+	和其他语言一样,shell也可以宝行外部脚本,这样可以很方便的封装一些公用代码作为一个独立的文件
+	
+	Shell文件包含的语法格式如下
+	
+		. filename #注意点号(.)和文件名之间有一个空格符
+		
+		或
+		
+		source filename
+	实例:
+	
+		创建俩个shell脚本文件
+		
+		test1.sh如下:
+			
+			#!/bin/bash
+			url="www.baidu.com"
+			
+		test2.sh如下
+		
+			#!/bin/bash
+			#使用 . 来引用test1.sh文件
+			. ./test1.sh
+			
+			#或者使用一下包含文件代码
+			# source ./test1.sh
+			
+			echo "百度网址:$url"
+			
+		运行脚本:
+		chmod +x test2.sh
+		./test2.sh
+		
+		输出结果:
+			百度网址:www.baidu.com
+		
+		
+		注意:被包含的文件test1.sh不需要可执行权限.

@@ -1,0 +1,118 @@
+Shell输入/输出重定向
+
+命令列表如下
+command > file 	将输出重定向到 file。
+command < file 	将输入重定向到 file。
+command >> file 	将输出以追加的方式重定向到 file。
+n > file 	将文件描述符为 n 的文件重定向到 file。
+n >> file 	将文件描述符为 n 的文件以追加的方式重定向到 file。
+n >& m 	将输出文件 m 和 n 合并。
+n <& m 	将输入文件 m 和 n 合并。
+<< tag 	将开始标记 tag 和结束标记 tag 之间的内容作为输入。
+
+需要注意的是文件描述符 0 通常是标准输入（STDIN），1 是标准输出（STDOUT），2 是标准错误输出（STDERR）。
+
+输出重定向
+重定向一般通过命令间插入特定的符号来实现,特别的,这些符号的语法如下所示:
+command1 > file1
+上面这个命令执行command1然后将输出的内容存入file1
+注意任何file1内的已经存在的内容江北新内容替代,如果要讲新内容添加在文件末尾,请用>>操作符
+
+实例:
+	hello Jamie > info.txt
+	执行后没有在终端输出信息,这是因为输出已经被默认的标准输出设备(终端)重定向到指定的文件,你可以使用cat命令查看文件内容
+	
+	> 重定向会覆盖,追加使用 >>
+	
+输入重定向
+
+	语法: 	command1 < file1
+	这样,本来需要从键盘获取输入的命令会转移到文件读取内容
+	注意:输出重定向是大于号>,输入重定向是小于号<
+
+实例:
+	wc -l info.txt
+	统计info.txt文件的行数 输出: 2 info.txt
+	
+	或者
+	
+	wc -l < info.txt
+	输出: 2
+	
+	注意:上面俩个例子结果不同,第一个例子会输出文件名,第二个不会,因为它仅仅知道从标准输入读取内容.
+	
+同时替换输入和输出,执行command1,从文件infile读取内容,然后输出写入到outfile中
+	
+	command1 < infile > outfile
+	
+重定向深入理解
+
+	一般情况下,每个Unix/Linux命令运行时,都会打开三个文件:
+		标准输入文件(stdin):stdin的文件描述符为0,Unix程序默认从stdin读取数据.
+		标准输出文件(stdout):stdout的文件描述符为1,Unix程序默认向stdout输出数据.
+		标准错误文件(stderr):stderr的文件描述符为2,Unix程序会向stderr流中写入错误信息
+	默认情况下,command > file 将 stdout重定向到file,command < file 将stdin重定向到file.
+	
+	如果希望stderr重定向到file,可以这样写
+		command 2 > file
+	如果希望stderr追加到file文件末尾,可以这样写:
+		command 2 >> file
+	2表示标准错误文件(stderr);
+	如果希望将stdout和stderr合并后重定向到file,可以这样写:
+		command > file 2>&1
+		
+		或者
+		
+		command >> file 2>&1
+	
+	如果希望对stdin和stdout都重定向,可以这样写	
+		command < file1 > file2
+		command命令将stdin重定向到file1,将stdout重定向到file2
+
+Here Document
+	
+	Here Document是shell中一种特殊的重新向方式,用来将输入重定向到一个交互式shell脚本或程序中.
+	
+	语法:
+	
+		command << delimiter 
+			document
+		delimiter
+		
+		作用是:将两个delimiter之间的内容(document) 作为参数传递给command
+		
+		#注意:
+			结尾的delimiter一定要顶格写,前面不能有任何字符,后面也不能有任何字符,包括空格和tab缩进.
+			开始的delimiter前后的空格会被忽略掉
+		实例
+			在命令行通过wc -l 命令计算Here Document的行数
+			wc -l << EOF
+				你好
+				火红的萨日朗
+				hahahahha
+			EOF 
+			3 #输出结果为3
+		
+			也可以将Here Document用在脚本中
+			
+				#!/bin/bash
+				cat << EOF
+				hello 
+				world
+				123
+				EOF
+			
+			执行脚本,输出结果:
+				hello 
+				world
+				123
+
+/dev/null 文件
+	如果希望执行某个命令,但又不希望在屏幕上显示输出结果,那么可以将重定向到/dev/null
+	command > /dev/null
+	
+	/dev/null 是一个特殊文件,写入到他的内容将会被丢弃,如果尝试从该文件读取内容,那么什么也读不到,但是/dev/null文件非常有用,将命令的输出重定向到他,会起到"禁止输出"的效果
+如果希望屏蔽stdout和stderr,可以这样写:
+
+	command > /dev/null 2>&1
+	注意：0 是标准输入（STDIN），1 是标准输出（STDOUT），2 是标准错误输出（STDERR）。
